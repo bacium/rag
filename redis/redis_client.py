@@ -8,7 +8,7 @@ class RedisClient(object):
         self.logger = logger
         try:
             self.logger.info('redis init')
-            self.client = redis.Redis(
+            self.client = redis.StrictRedis(
                 host=Config().REDIS_HOST,
                 port=Config().REDIS_PORT,
                 db=Config().REDIS_DB,
@@ -16,8 +16,10 @@ class RedisClient(object):
                 decode_responses=True
             )
             self.logger.info('redis 连接成功')
-        except Exception as e:
+        # except Exception as e:
+        except redis.ConnectionError as e:
             self.logger.error(f'redis 连接失败,异常原因:   {e}')
+            raise
 
     def set_data(self, key, value):
         try:
