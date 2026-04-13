@@ -46,11 +46,32 @@ class RedisClient(object):
         except Exception as e:
             self.logger.error(f'redis 获取 {query} 失败,异常原因:{e}')
 
+    def delete_key(self, key):
+        try:
+            result = self.client.delete(key)
+            if result == 1:
+                self.logger.info(f'redis 删除 {key} 成功 ')
+            else:
+                self.logger.info(f'redis {key}不存在')
+        except Exception as e:
+            self.logger.error(f'redis 删除 {key} 失败,异常原因:  {e}')
+
+    def get_all_keys(self):
+        try:
+            keys = self.client.keys("*")
+            print(keys)
+            self.logger.info(f'redis 获取所有key成功 ')
+            return keys
+        except Exception as e:
+            self.logger.error(f'redis 获取所有key失败,异常原因:  {e}')
+
 
 if __name__ == '__main__':
     redis_client = RedisClient()
     # redis_client.set_data('test', '1234')
     # test_value = redis_client.get_data('test')
     # print(test_value)
-    answer = redis_client.get_answer('2+2')
-    print(answer)
+    # answer = redis_client.get_answer('2+2')
+    # print(answer)
+    redis_client.delete_key('test')
+    print(redis_client.get_all_keys())
