@@ -29,6 +29,9 @@ class Config(object):
         self.REDIS_HOST = self.configparser.get("redis", "host", fallback="localhost")
         self.REDIS_PORT = self.configparser.get("redis", "port", fallback="6379")
         self.REDIS_DB = self.configparser.get("redis", "db", fallback="0")
+        self.REDIS_PASSWORD = self.configparser.get(
+            "redis", "password", fallback="1234"
+        )
         # 获取日志文件配置
         self.LOG_FILE = self.configparser.get(
             "log", "log_file", fallback="logs/app.log"
