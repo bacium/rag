@@ -19,7 +19,7 @@ class MySQLClient:
                 host=Config().MYSQL_HOST,
                 user=Config().MYSQL_USER,
                 password=Config().MYSQL_PASSWORD,
-                database=Config().MYSQL_DATABASE,
+                # database=Config().MYSQL_DATABASE,
             )
             self.cursor = self.connection.cursor()
             logger.info(f"mysql 连接成功")

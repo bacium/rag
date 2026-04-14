@@ -1,0 +1,13 @@
+2026-04-14 14:19:04,143 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:20:27,153 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:21:51,599 - EduRAG - INFO - 正在连接mysql数据库...
+2026-04-14 14:21:51,605 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:24:31,263 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:26:04,264 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:28:22,829 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:29:00,065 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:33:15,391 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:33:21,476 - EduRAG - ERROR - mysql 连接失败: (1045, "Access denied for user 'root'@'192.168.65.1' (using password: YES)")
+2026-04-14 14:39:07,356 - EduRAG - ERROR - mysql 连接失败: (1049, "Unknown database 'subjects_kg'")
+2026-04-14 14:39:26,833 - EduRAG - ERROR - mysql 连接失败: (1049, "Unknown database 'subjects_kg'")
+2026-04-14 14:39:46,329 - EduRAG - INFO - mysql 连接成功
