@@ -16,19 +16,26 @@ class Config(object):
         self.configparser = configparser.ConfigParser()
         self.configparser.read(config_file)
         # 获取mysql
-        self.MYSQL_HOST = self.configparser.get('mysql', 'host', fallback="localhost")
-        self.MYSQL_PORT = self.configparser.get('mysql', 'port', fallback="3306")
-        self.MYSQL_USER = self.configparser.get('mysql', 'user', fallback="root")
-        self.MYSQL_PASSWORD = self.configparser.get('mysql', 'password', fallback="123456")
+        self.MYSQL_HOST = self.configparser.get("mysql", "host", fallback="localhost")
+        self.MYSQL_PORT = self.configparser.get("mysql", "port", fallback="3306")
+        self.MYSQL_USER = self.configparser.get("mysql", "user", fallback="root")
+        self.MYSQL_PASSWORD = self.configparser.get(
+            "mysql", "password", fallback="123456"
+        )
+        self.MYSQL_DATABASE = self.configparser.get(
+            "mysql", "database", fallback="subjects_kg"
+        )
         # 获取redis配置
-        self.REDIS_HOST = self.configparser.get('redis', 'host', fallback="localhost")
-        self.REDIS_PORT = self.configparser.get('redis', 'port', fallback="6379")
-        self.REDIS_DB = self.configparser.get('redis', 'db', fallback="0")
+        self.REDIS_HOST = self.configparser.get("redis", "host", fallback="localhost")
+        self.REDIS_PORT = self.configparser.get("redis", "port", fallback="6379")
+        self.REDIS_DB = self.configparser.get("redis", "db", fallback="0")
         # 获取日志文件配置
-        self.LOG_FILE = self.configparser.get('log', 'log_file', fallback="logs/app.log")
+        self.LOG_FILE = self.configparser.get(
+            "log", "log_file", fallback="logs/app.log"
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     config = Config()
     print(config.MYSQL_HOST)
     print(config.MYSQL_PORT)
