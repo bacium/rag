@@ -19,6 +19,7 @@ class MySQLClient:
             self.connection = pymysql.connect(
                 host=Config().MYSQL_HOST,
                 user=Config().MYSQL_USER,
+                port=int(Config().MYSQL_PORT),
                 password=Config().MYSQL_PASSWORD,
                 database=Config().MYSQL_DATABASE,
             )
