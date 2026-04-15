@@ -49,7 +49,9 @@ class MySQLClient:
         try:
             for _, row in data.iterrows():
                 insert_data_sql = """INSERT INTO jpkb (subject_name, question,answer) VALUES  (%s,%s,%s)"""
-                self.cursor.execute(insert_data_sql, (row["学科名称"], row["问题"], row["答案"]))
+                self.cursor.execute(
+                    insert_data_sql, (row["学科名称"], row["问题"], row["答案"])
+                )
             self.connection.commit()
             logger.info(f"jpkb插入数据成功")
         except pymysql.MySQLError as e:
@@ -70,20 +72,21 @@ class MySQLClient:
     def query_answer(self, question):
         try:
             self.cursor.execute("SELECT answer FROM jpkb WHERE question=%s", question)
-            result = answer = self.cursor.fetchone()
+            answer = self.cursor.fetchone()
             logger.info(f"jpkb查询为问题{question}成功")
-            return answer[0] if result else None
+            return answer[0] if answer else None
         except pymysql.MySQLError as e:
             logger.error(f"jpkb查询问题{question}失败: {e}")
             raise e
 
     def close(self):
         try:
-            self.connection.close();
+            self.connection.close()
             logger.info(f"mysql 关闭成功")
         except pymysql.MySQLError as e:
             logger.error(f"mysql 断开连接失败: {e}")
             raise e
+
 
 if __name__ == "__main__":
     mysql_client = MySQLClient()
