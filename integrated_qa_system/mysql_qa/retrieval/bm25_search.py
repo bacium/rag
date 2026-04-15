@@ -1,13 +1,22 @@
+"""
+Author: 白登超 bacium_dc@163.com
+Date: 2026-04-11 17:49:29
+LastEditors: 白登超 bacium_dc@163.com
+LastEditTime: 2026-04-15 23:21:28
+FilePath: \\rag\\integrated_qa_system\\mysql_qa\\retrieval\\bm25_search.py
+Description: BM25检索
+
+Copyright (c) 2026 by 华夏金服, All Rights Reserved.
+"""
+
 from rank_bm25 import BM25Okapi
 import os
 import sys
-sys.path.insert(
-    0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
-print(sys.path)
 import numpy as np
 from base import logger
 from utils.preprocess import preprocess_text
@@ -39,9 +48,13 @@ class BM25Search:
                 logger.warning("数据库中未加载到数据")
                 return None
             # 将原始问题分词
-            tokenized_questions = [preprocess_text(q[0]) for q in self.original_questions]
+            tokenized_questions = [
+                preprocess_text(q[0]) for q in self.original_questions
+            ]
             # 原始问题和分词数据保存在redis中
-            self.redis_client.set_data(original_key, [(q[0]) for q in self.original_questions])
+            self.redis_client.set_data(
+                original_key, [(q[0]) for q in self.original_questions]
+            )
             self.redis_client.set_data(tokenized_key, tokenized_questions)
         # 创建BM25模型
         self.questions = tokenized_questions
