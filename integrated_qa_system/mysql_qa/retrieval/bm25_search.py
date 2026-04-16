@@ -65,6 +65,16 @@ class BM25Search:
         exp_scores = np.exp(scores - np.max(scores))
         return exp_scores / exp_scores.sum()
 
+    def search(self, query, threshold=0.85):
+        if not query or isinstance(query, str):
+            logger.error("无效查询")
+            return None, False
+        cache_answer = self.redis_client.get_data(query)
+        if cache_answer:
+            logger.info(f"从缓存中获取答案:{cache_answer}")
+            return cache_answer, False
+
+
 if __name__ == "__main__":
     mysql_client = MySQLClient()
     redis_client = RedisClient()
