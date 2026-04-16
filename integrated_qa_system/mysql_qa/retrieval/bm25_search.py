@@ -6,7 +6,7 @@ LastEditTime: 2026-04-15 23:21:28
 FilePath: \\rag\\integrated_qa_system\\mysql_qa\\retrieval\\bm25_search.py
 Description: BM25检索
 
-Copyright (c) 2026 by 华夏金服, All Rights Reserved.
+Copyright (c) 2026 by bacium, All Rights Reserved.
 """
 
 from rank_bm25 import BM25Okapi
@@ -61,6 +61,9 @@ class BM25Search:
         self.bm25 = BM25Okapi(self.questions)
         logger.info("BM25模型加载数据成功")
 
+    def _softmax(self, scores):
+        exp_scores = np.exp(scores - np.max(scores))
+        return exp_scores / exp_scores.sum()
 
 if __name__ == "__main__":
     mysql_client = MySQLClient()
