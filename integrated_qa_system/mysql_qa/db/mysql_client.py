@@ -11,7 +11,9 @@ sys.path.insert(
 from base import Config, logger
 
 
-# print(f"config: {Config().MYSQL_HOST}")
+print(f"config: {Config().MYSQL_HOST}")
+
+
 # logger.info("正在连接mysql数据库...")
 class MySQLClient:
     def __init__(self) -> None:
@@ -92,9 +94,9 @@ class MySQLClient:
 if __name__ == "__main__":
     mysql_client = MySQLClient()
     # mysql_client.create_table()
-    # mysql_client.insert_data("../data/JP学科知识问答.csv")
-    # all_questions=mysql_client.query_question()
+    # mysql_client.insert_data("integrated_qa_system/mysql_qa/data/JP学科知识问答.csv")
+    # all_questions = mysql_client.query_question()
     # print(f"all_question========>{all_questions}")
-    res = mysql_client.query_answer("Tomcat在docker里下载什么版本呢？")
-    print(f"res========>{res}")
+    # res = mysql_client.query_answer("Tomcat在docker里下载什么版本呢？")
+    # print(f"res========>{res}")
     # mysql_client.close()

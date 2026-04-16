@@ -44,7 +44,7 @@ class BM25Search:
         if not original_questions or not tokenized_questions:
             self.original_questions = self.mysql_client.query_question()
             # 如果数据库中的问题为空时返回None
-            if self.questions is None:
+            if self.original_questions is None:
                 logger.warning("数据库中未加载到数据")
                 return None
             # 将原始问题分词
