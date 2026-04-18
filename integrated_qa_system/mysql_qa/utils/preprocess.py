@@ -11,7 +11,7 @@ from base import logger
 
 def preprocess_text(text):
     try:
-        logger.info(f"*********正在处理文本=========> {text}")
+        # logger.info(f"*********正在处理文本=========> {text}")
         return jieba.lcut(text.lower())
     except Exception as e:
         logger.error(f"*********文本{text}预处理失败！")

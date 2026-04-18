@@ -1,6 +1,7 @@
 import json
 import os, sys
 import redis
+
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
@@ -60,7 +61,7 @@ class RedisClient:
                 # 记录获取成功
                 self.logger.info(f"从 Redis 获取答案: {query}")
                 # 返回答案
-                return answer
+                return json.loads(answer)
             # 返回 None
             return None
         except redis.RedisError as e:
