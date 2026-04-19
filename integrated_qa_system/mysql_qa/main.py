@@ -26,8 +26,29 @@ class MysqlQaSystem:
         self.logger.info(f"处理时间: {process_time:.3f}秒")
         return answer
 
+def main():
+    mysql_qa=MysqlQaSystem()
+    logger.info("mysql问答系统启动成功")
+    print("欢迎使用mysql问答系统")
+    print("输入查询进行问答，输入 'exit' 退出。")
+    try:
+        while True:
+            prompt_message = input("\n请输入查询: ")
+            if prompt_message.lower() == "exit":
+                print("退出成功!")
+                logger.info("mysql问答系统已退出")
+                break
+            else:
+                logger.info(f"用户查询: {prompt_message}")
+                answer = mysql_qa.query(prompt_message)
+                logger.info(f"查询结果: {answer}")
+    except Exception as e:
+        logger.error(f"处理用户查询时发生错误: {e}")
+
+
+
+
 
 if __name__ == "__main__":
-    qa_system = MysqlQaSystem()
-    result = qa_system.query("VMware安装VMware Tools时显示灰色如何解决")
-    print(result)
+
+    main()
