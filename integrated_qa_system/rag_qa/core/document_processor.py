@@ -1,10 +1,10 @@
 import time
 from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders.markdown import UnstructuredMarkdownLoader
-from langchain.text_splitter import MarkdownTextSplitter
-from datetime import datetime
+# from langchain.text_splitter import MarkdownTextSplitter 旧版本使用
+from langchain_text_splitters import MarkdownTextSplitter    # 新版本langchain 1.0 以后使用这个
 import os, sys
-
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from edu_text_spliter import AliTextSplitter, ChineseRecursiveTextSplitter
@@ -57,7 +57,7 @@ def load_document_from_dir(dir_path):
                         # 为文档添加文件路径元数据
                         doc.metadata["file_path"] = file_path
                         # 为文档添加当前时间戳元数据
-                        doc.metadata["timestamp"] = datetime.now().isoformat()
+                        doc.metadata["timestamp"] = time.now().isoformat()
                         # 将加载的文档添加到总列表中
                     document_list.extend(loaded_docs)
                 except Exception as e:
@@ -65,7 +65,8 @@ def load_document_from_dir(dir_path):
                     continue
             else:
                 logger.warning(f"不支持的文件类型：{file_type}")
-    return  document_list
+    return document_list
+
 
 def process_document(file_path="", parent_chunk_size=conf.PARENT_CHUNK_SIZE, child_chunk_size=conf.CHILD_CHUNK_SIZE,
                      chunk_overlap=conf.CHUNK_OVERLAP):
@@ -74,11 +75,14 @@ def process_document(file_path="", parent_chunk_size=conf.PARENT_CHUNK_SIZE, chi
     parent_splitter = ChineseRecursiveTextSplitter(parent_chunk_size=parent_chunk_size,
                                                    parent_chunk_overlap=chunk_overlap)
     child_splitter = ChineseRecursiveTextSplitter(child_chunk_size=child_chunk_size, child_chunk_overlap=chunk_overlap)
-
     markdown_parent_splitter = MarkdownTextSplitter(chunk_size=parent_chunk_size, chunk_overlap=chunk_overlap)
     markdown_child_splitter = MarkdownTextSplitter(chunk_size=child_chunk_size, chunk_overlap=chunk_overlap)
 
+    for i,doc in enumerate(document):
+        print(i,doc)
 
 if __name__ == '__main__':
     dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
-    load_document_from_dir(dir_path)
+    dir_path="/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
+    # load_document_from_dir(dir_path)
+    process_document(dir_path)
