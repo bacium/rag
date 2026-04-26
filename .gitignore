@@ -4,3 +4,4 @@
 __pycache__/
 *.pyc
 *.pyo
+integrated_qa_system/rag_qa/models/

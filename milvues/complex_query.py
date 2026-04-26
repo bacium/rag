@@ -8,10 +8,10 @@ def operate_db():
     # print(client)
     databases = client.list_databases()
     # print(databases)
-    if "milvus_demo" not in databases:
-        client.create_database("milvus_demo")
+    if "EduRAG" not in databases:
+        client.create_database("EduRAG")
     else:
-        client.use_database("milvus_demo")
+        client.use_database("EduRAG")
     return client
 
 
@@ -70,4 +70,5 @@ def dropout_collection():
 
 if __name__ == '__main__':
     # complex_query()
-    dropout_collection()
+    # dropout_collection()
+    ...
