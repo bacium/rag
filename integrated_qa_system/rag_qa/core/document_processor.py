@@ -5,7 +5,6 @@ from langchain_community.document_loaders.markdown import UnstructuredMarkdownLo
 from langchain_text_splitters import MarkdownTextSplitter  # 新版本langchain 1.0 以后使用这个
 import os, sys
 from datetime import datetime
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from edu_text_spliter import AliTextSplitter, ChineseRecursiveTextSplitter

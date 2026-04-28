@@ -7,8 +7,10 @@ from langchain.docstore.document import Document
 # 导入 CrossEncoder，用于重排序和 NLI 判断
 from sentence_transformers import CrossEncoder
 # 导入 hashlib 模块，用于生成唯一 ID 的哈希值
+from document_processor import *
 import hashlib
 import torch
+import numpy as np
 import sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -83,6 +85,42 @@ class VectorStore:
             self.logger.info(f"已连接集合{self.collection_name}，正在加载到内存中")
             self.milvus_client.load_collection(self.collection_name)
 
+    def add_documents(self, documents):
+        texts = [doc.page_content for doc in documents]
+        # print(f"texts======>{ texts}")
+        # 文本进行向量化处理
+        embeddings = self.embedding_function(texts)
+        print(f"embeddings========>{embeddings}")
+        data = []
+        for i, doc in enumerate(documents):
+            doc_id = hashlib.md5(doc.page_content.encode("utf-8")).hexdigest()
+            spares_vector = {}
+            row = embeddings["sparse"][i]
+            sparse_vector = {int(index): float(value) for index, value in zip(row.indices, row.data)}
+            # 3. 【关键修复】处理密集向量：必须转换为 float32
+            # Milvus FLOAT_VECTOR 强制要求 np.float32 类型
+            dense_vector = np.array(embeddings["dense"][i], dtype=np.float32).tolist()
+            data.append({
+                "id": doc_id,
+                "text": doc.page_content,
+                "dense_vector": embeddings["dense"][i],
+                "sparse_vector": spares_vector,
+                "parent_id": doc.metadata["parent_chunk_id"],
+                "parent_content": doc.metadata["parent_chunk_content"],
+                "source": doc.metadata.get("source", "unknown"),
+                "timestamp": doc.metadata.get("timestamp", "unknown")
+            })
+        if data:
+            try:
+                self.milvus_client.upsert(collection_name=self.collection_name, data=data)
+                self.logger.info(f"成功向集合 {self.collection_name} 添加 {len(data)} 个文档")
+            except Exception as e:
+                self.logger.error(f"Milvus Upsert 失败: {e}")
+                raise e
+
 
 if __name__ == "__main__":
     vectorStore = VectorStore()
+    dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\integrated_qa_system\\rag_qa\\data\\ai_data"
+    chunk_result = process_document(dir_path)
+    vectorStore.add_documents(chunk_result)
