@@ -5,6 +5,7 @@ from langchain_community.document_loaders.markdown import UnstructuredMarkdownLo
 from langchain_text_splitters import MarkdownTextSplitter  # 新版本langchain 1.0 以后使用这个
 import os, sys
 from datetime import datetime
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from edu_text_spliter import AliTextSplitter, ChineseRecursiveTextSplitter
@@ -42,6 +43,7 @@ def load_document_from_dir(dir_path):
         for file in files:
             file_path = os.path.join(root, file)
             file_type = os.path.splitext(file_path)[1].lower()
+            # print(f"正在处理文件 {file_path}")
             if file_type in supported_file_types:
                 loader_class = document_loaders[file_type]
                 try:
@@ -50,7 +52,7 @@ def load_document_from_dir(dir_path):
                     else:
                         loader = loader_class(file_path)
                     loaded_docs = loader.load()
-                    # print(f"加载文件 {loaded_docs} 成功！")
+                    logger.info(f"加载文件 {file_path} 成功")
                     for doc in loaded_docs:
                         # 为文档添加学科类别元数据
                         doc.metadata["source"] = source
@@ -108,8 +110,8 @@ def process_document(file_path="", parent_chunk_size=conf.PARENT_CHUNK_SIZE, chi
 
 
 if __name__ == '__main__':
-    dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
-    # dir_path="/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
+    # dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
+    dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
     # load_document_from_dir(dir_path)
     chunk_result = process_document(dir_path)
     # print(chunk_result[0])
