@@ -3,7 +3,7 @@ from milvus_model.hybrid import BGEM3EmbeddingFunction
 # 导入 Milvus 相关类，用于操作向量数据库
 from pymilvus import MilvusClient, DataType, AnnSearchRequest, WeightedRanker
 # 导入 Document 类，用于创建文档对象
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
 # 导入 CrossEncoder，用于重排序和 NLI 判断
 from sentence_transformers import CrossEncoder
 # 导入 hashlib 模块，用于生成唯一 ID 的哈希值
@@ -31,8 +31,14 @@ class VectorStore:
         self.database = database
         self.collection_name = collection_name
         self.logger = logger
-        self.reranker = CrossEncoder(model_name_or_path="../models/bge-reranker-large")
+        # self.reranker = CrossEncoder(model_name_or_path="../models/bge-reranker-large")
+        self.reranker = CrossEncoder(
+            model_name_or_path="../models/bge-reranker-large",
+            automodel_args={"ignore_mismatched_sizes": True},
+            tokenizer_args={"use_fast": False}
+        )
         self.embedding_function = BGEM3EmbeddingFunction(model_name="../models/bge-m3",
+
                                                          use_fp16=(self.device == "cuda"), device=self.device)
         self.dense_dim = self.embedding_function.dim["dense"]
         self._create_or_load_collection()
@@ -90,21 +96,21 @@ class VectorStore:
         # print(f"texts======>{ texts}")
         # 文本进行向量化处理
         embeddings = self.embedding_function(texts)
-        print(f"embeddings========>{embeddings}")
+        # print(f"embeddings========>{embeddings}")
         data = []
         for i, doc in enumerate(documents):
             doc_id = hashlib.md5(doc.page_content.encode("utf-8")).hexdigest()
-            spares_vector = {}
+            sparse_vector = {}
             row = embeddings["sparse"][i]
-            sparse_vector = {int(index): float(value) for index, value in zip(row.indices, row.data)}
-            # 3. 【关键修复】处理密集向量：必须转换为 float32
+            row_csr = row.tocsr()  # coo_array -> csr_array
+            sparse_vector = {int(index): float(value) for index, value in zip(row_csr.indices, row_csr.data)}
             # Milvus FLOAT_VECTOR 强制要求 np.float32 类型
             dense_vector = np.array(embeddings["dense"][i], dtype=np.float32).tolist()
             data.append({
                 "id": doc_id,
                 "text": doc.page_content,
-                "dense_vector": embeddings["dense"][i],
-                "sparse_vector": spares_vector,
+                "dense_vector": dense_vector,
+                "sparse_vector": sparse_vector,
                 "parent_id": doc.metadata["parent_chunk_id"],
                 "parent_content": doc.metadata["parent_chunk_content"],
                 "source": doc.metadata.get("source", "unknown"),
@@ -121,6 +127,6 @@ class VectorStore:
 
 if __name__ == "__main__":
     vectorStore = VectorStore()
-    dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\integrated_qa_system\\rag_qa\\data\\ai_data"
+    dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
     chunk_result = process_document(dir_path)
     vectorStore.add_documents(chunk_result)
