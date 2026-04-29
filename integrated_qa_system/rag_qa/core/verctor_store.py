@@ -124,9 +124,47 @@ class VectorStore:
                 self.logger.error(f"Milvus Upsert 失败: {e}")
                 raise e
 
+    def hybrid_search_with_rerank(self, query, k=conf.RETRIEVAL_K, source_filter="ai"):
+        query_embedding = self.embedding_function([query])
+        self.logger.info(f"对查询 {query} 进行混合搜索{query_embedding}")
+        # 稠密查询向量
+        dense_query_vector = query_embedding["dense"][0]
+        # 稀疏查询向量
+        sparse_query_row = query_embedding["sparse"][0]
+        query_row = sparse_query_row.tocsr()
+        sparse_query_vector = {int(index): float(value) for index, value in zip(query_row.indices, query_row.data)}
+        # Milvus FLOAT_VECTOR 强制要求 np.float32 类型
+        dense_vector = np.array(dense_query_vector, dtype=np.float32).tolist() \
+            # 初始化过滤表达式，默认不过滤
+        filter_expr = f"source == '{source_filter}'" if source_filter else ""
+        # 稠密向量请求
+        dense_request = AnnSearchRequest(
+            data=[dense_vector],
+            anns_field="dense_vector",
+            param={"metric_type": "IP", "params": {"nprobe": 10}},
+            limit=k,
+            expr=filter_expr
+        )
+        # 稀疏向量请求
+        sparse_request = AnnSearchRequest(
+            data=[sparse_query_vector],
+            anns_field="sparse_vector",
+            param={"metric_type": "IP", "params": {}},
+            limit=k,
+            expr=filter_expr
+        )
+        reranker = WeightedRanker(1.0, 0.7)
+        reranker_request = self.milvus_client.hybrid_search(collection_name=self.collection_name,
+                                                            requests=[dense_request, sparse_request], reranker=reranker,
+                                                            rerank_param={"metric_type": "IP", "params": {}},
+                                                            output_fields=["text", "parent_id", "parent_content",
+                                                                           "source", "timestamp"])
+
 
 if __name__ == "__main__":
     vectorStore = VectorStore()
-    dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
-    chunk_result = process_document(dir_path)
-    vectorStore.add_documents(chunk_result)
+    # dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
+    # dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
+    # chunk_result = process_document(dir_path)
+    # vectorStore.add_documents(chunk_result)
+    vectorStore.hybrid_search_with_rerank("什么是大模型")
