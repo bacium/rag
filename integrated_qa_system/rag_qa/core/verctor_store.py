@@ -134,7 +134,7 @@ class VectorStore:
         query_row = sparse_query_row.tocsr()
         sparse_query_vector = {int(index): float(value) for index, value in zip(query_row.indices, query_row.data)}
         # Milvus FLOAT_VECTOR 强制要求 np.float32 类型
-        dense_vector = np.array(dense_query_vector, dtype=np.float32).tolist() \
+        dense_vector = np.array(dense_query_vector, dtype=np.float32).tolist()
             # 初始化过滤表达式，默认不过滤
         filter_expr = f"source == '{source_filter}'" if source_filter else ""
         # 稠密向量请求
