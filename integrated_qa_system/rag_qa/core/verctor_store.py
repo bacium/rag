@@ -155,10 +155,12 @@ class VectorStore:
         )
         reranker = WeightedRanker(1.0, 0.7)
         reranker_request = self.milvus_client.hybrid_search(collection_name=self.collection_name,
-                                                            requests=[dense_request, sparse_request], reranker=reranker,
+                                                            reqs=[dense_request, sparse_request],
+                                                            ranker=reranker,
                                                             rerank_param={"metric_type": "IP", "params": {}},
                                                             output_fields=["text", "parent_id", "parent_content",
                                                                            "source", "timestamp"])
+        print(f"reranker_request==========>{reranker_request}")
 
 
 if __name__ == "__main__":
