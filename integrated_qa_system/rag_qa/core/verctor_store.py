@@ -31,14 +31,9 @@ class VectorStore:
         self.database = database
         self.collection_name = collection_name
         self.logger = logger
-        # self.reranker = CrossEncoder(model_name_or_path="../models/bge-reranker-large")
-        self.reranker = CrossEncoder(
-            model_name_or_path="../models/bge-reranker-large",
-            automodel_args={"ignore_mismatched_sizes": True},
-            tokenizer_args={"use_fast": False}
-        )
+        rerank_path = "../models/bge-reranker-large"
+        self.reranker = CrossEncoder(model_name_or_path=rerank_path, device=self.device)
         self.embedding_function = BGEM3EmbeddingFunction(model_name="../models/bge-m3",
-
                                                          use_fp16=(self.device == "cuda"), device=self.device)
         self.dense_dim = self.embedding_function.dim["dense"]
         self._create_or_load_collection()
@@ -134,8 +129,8 @@ class VectorStore:
         query_row = sparse_query_row.tocsr()
         sparse_query_vector = {int(index): float(value) for index, value in zip(query_row.indices, query_row.data)}
         # Milvus FLOAT_VECTOR 强制要求 np.float32 类型
-        dense_vector = np.array(dense_query_vector, dtype=np.float32).tolist() \
-            # 初始化过滤表达式，默认不过滤
+        dense_vector = np.array(dense_query_vector, dtype=np.float32).tolist()
+        # 初始化过滤表达式，默认不过滤
         filter_expr = f"source == '{source_filter}'" if source_filter else ""
         # 稠密向量请求
         dense_request = AnnSearchRequest(
@@ -155,10 +150,54 @@ class VectorStore:
         )
         reranker = WeightedRanker(1.0, 0.7)
         reranker_request = self.milvus_client.hybrid_search(collection_name=self.collection_name,
-                                                            requests=[dense_request, sparse_request], reranker=reranker,
-                                                            rerank_param={"metric_type": "IP", "params": {}},
+                                                            reqs=[dense_request, sparse_request],
+                                                            ranker=reranker,
+                                                            limit=k,
                                                             output_fields=["text", "parent_id", "parent_content",
-                                                                           "source", "timestamp"])
+                                                                           "source", "timestamp"])[0]
+        # print(f"reranker_request=====>{reranker_request}")
+        # print(f"reranker_request_len======>{len(reranker_request)}")
+        sub_chunks_documents = [self._doc_from_hit(hit["entity"]) for hit in reranker_request]
+        # print(f"sub_chunks_documents======>{sub_chunks_documents}")
+        parent_docs = self._get_unique_parent_docs(sub_chunks_documents)
+        # print(f"parent_docs======>{parent_docs}")
+        # print(f"parent_docs=====>{len(parent_docs)}")
+        if len(parent_docs) < 2:
+            return parent_docs[:conf.CANDIDATE_M]
+        if parent_docs:
+            paris = [[query, doc.page_content] for doc in parent_docs]
+            scores = self.reranker.predict(paris)
+            # print(f"scores======>{scores}")
+            # 根据得分从高到低排序文档
+            ranked_parent_docs = [doc for score, doc in sorted(zip(scores, parent_docs), reverse=True)]
+            return ranked_parent_docs[:conf.CANDIDATE_M]
+
+    def _get_unique_parent_docs(self, sub_chunks):
+        # 初始化集合，用于存储已处理的父块内容（去重）
+        parent_contents = set()
+        # 初始化列表，用于存储唯一父文档
+        unique_docs = []
+        for doc in sub_chunks:
+            # 获取父块内容
+            parent_content = doc.metadata["parent_content"]
+            # 检查父块内容是否已处理
+            if parent_content and parent_content not in parent_contents:
+                # 将父块内容添加到已处理的集合中
+                parent_contents.add(parent_content)
+                # 将父文档添加到结果列表中
+                unique_docs.append(Document(page_content=parent_content, metadata=doc.metadata))
+        return unique_docs
+
+    def _doc_from_hit(self, hit):
+        return Document(
+            page_content=hit.get("text"),
+            metadata={
+                "parent_id": hit.get("parent_id"),
+                "parent_content": hit.get("parent_content"),
+                "source": hit.get("source"),
+                "timestamp": hit.get("timestamp")
+            }
+        )
 
 
 if __name__ == "__main__":
@@ -167,4 +206,5 @@ if __name__ == "__main__":
     # dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
     # chunk_result = process_document(dir_path)
     # vectorStore.add_documents(chunk_result)
-    vectorStore.hybrid_search_with_rerank("什么是大模型")
+    result = vectorStore.hybrid_search_with_rerank("ai是什么")
+    print(result)

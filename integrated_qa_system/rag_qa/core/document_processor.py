@@ -110,8 +110,8 @@ def process_document(file_path="", parent_chunk_size=conf.PARENT_CHUNK_SIZE, chi
 
 
 if __name__ == '__main__':
-    # dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
-    dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
+    dir_path = "C:\\Users\\bai\\Desktop\\project\\rag\\integrated_qa_system\\rag_qa\\data\\ai_data"
+    # dir_path = "/Users/baidengchao/Desktop/project/Rag_code/integrated_qa_system/rag_qa/data/ai_data"
     # load_document_from_dir(dir_path)
     chunk_result = process_document(dir_path)
     # print(chunk_result[0])
