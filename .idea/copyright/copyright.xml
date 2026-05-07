@@ -1,5 +1,6 @@
 <component name="CopyrightManager">
   <copyright>
+    <option name="notice" value="Copyright (c) &amp;#36;today.year 白登超 (Email: bacium_dc@163.com)&#10;All rights reserved.&#10;Last Modified: &amp;#36;today.format(&quot;yyyy-MM-dd HH:mm:ss&quot;)&#10;Filename: &amp;#36;file.fileName" />
     <option name="myName" value="copyright" />
   </copyright>
 </component>
